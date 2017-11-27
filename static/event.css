@@ -1,0 +1,31 @@
+
+.card {
+    width: 600px;
+}
+
+.title  {
+    font-size:30px;
+
+}
+
+#chance-win-text {
+    color:#444444;
+    border: 2px solid #777;
+    border-bottom: none;
+}
+
+#knockout-table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+#knockout-table th, td {
+    text-align:center;
+    vertical-align:middle;
+    border: 1px solid #ddd;
+}
+
+#knockout-table td {
+    width: 5vw;
+    min-width: 75px;
+}

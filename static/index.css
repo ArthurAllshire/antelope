@@ -1,0 +1,34 @@
+.cardtop {
+    /* height: 25px; */
+    display:block;
+}
+
+.event-name {
+    font-size: 20px;
+    line-height: 20px;
+    display: block;
+    float: left;
+}
+
+.event-link {
+    color: #000000;
+}
+
+.event-status {
+    font-size: 20px;
+    line-height: 20px;
+    display: block;
+    float: right;
+}
+
+.dates {
+    float: right;
+    display: block;
+    transform:translateY(-8px);
+}
+
+.event-stats {
+    float:left;
+    display: block;
+    transform:translateY(-10px);
+}

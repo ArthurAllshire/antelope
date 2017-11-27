@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{% block pagetitle %}{% endblock %}FRC Match Prediction</title>
+    <link href="../static/style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="navbar">
+        <div class="header">
+            <div class="title-container"><a class="header-link" href="/"><b>FRC Match Prediction</b></a></div>
+          <div class="search-form-container">
+              <form class="search-form" >
+                  <input class="search-input" placeholder="Team # or event code">
+              </form>
+          </div>
+
+        </div>
+    </div>
+    <div class="body">{% block body %}{% endblock %}</div>
+</body>
+</html>

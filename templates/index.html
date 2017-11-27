@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block pagetitle %}{% endblock %}
+{% block body %}
+<link href="../static/index.css" rel="stylesheet">
+<ul class="cards">
+{% for event in events %}
+    <li>
+    <div class="card">
+        <!-- <div class="card-topline"> -->
+        <div class="event-name"><a class="event-link" href="/event/{{ event.code }}"><b>{{ event.name }}</b></a></div>
+        <div class="event-status">{{ event.status }}</div>
+        <!-- </div> -->
+        <br />
+        <br />
+        <div class="event-stats">
+            <table>
+            {% for stat in event.event_stats %}
+            <tr>
+                <td> {{stat[0]}} </td>
+                <td> {{stat[1]}} </td>
+            </tr>
+            {% endfor %}
+            </table>
+        </div>
+        <div class="dates"> {{event.start_month}} {{event.start_day}} to
+            {{event.end_month}} {{event.end_day}}</div>
+    </div>
+    </li>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block pagetitle %}{{event.name}} - {% endblock %}
+{% block body %}
+<link href="../static/event.css" rel="stylesheet">
+<div class="title">
+    <b>{{event.start_year}} {{event.name}}</b>
+</div>
+{% if event.finals.in_progress %}
+<div class="card" id="knockout-card">
+    <div class="card-heading" id="knockout-title"><b>Knockout Rounds</b></div>
+    <br>
+    <table id="knockout-table">
+        {% if event.finals.final_type == "knockout" %}
+        <tr>
+            <th rowspan="2">Alliance</th>
+            <th id="chance-win-text" colspan="{{event.finals.rounds}}">
+                Chance of winning
+            </th>
+        </tr>
+        {% endif %}
+        <tr>
+            {% if event.finals.final_type == "knockout" %}
+
+            {% if event.finals.rounds >= 4 %}
+            <th>Eighths</th>
+            {% endif %}
+            {% if event.finals.rounds >= 3 %}
+            <th>Quarters</th>
+            <th>Semis</th>
+            <th>Final</th>
+            {% endif %}
+
+            {% endif %}
+
+            {% if event.finals.final_type == "round-robin" %}
+            <th>Escape Round Robin</th>
+            <th>Win Finals</th>
+            {% endif %}
+        </tr>
+        {% for alliance_ko_data in event.finals.knockout_predictions %}
+        <tr>
+            <td>
+                {% for alliance in alliance_ko_data[0] %}{{alliance}} {% endfor %}
+            </td>
+            {% for round in alliance_ko_data[1:] %}
+            <!-- TODO: Dynamically colour these cells based on the likelihood of the event-->
+            <td>{{round}}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endif %}
+<div class="card" id="upcoming-card">
+    <div class="card-heading" id="upcoming-title"><b>Upcoming Matches</b></div>
+</div>
+{% endblock %}
