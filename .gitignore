@@ -1,3 +1,13 @@
+# Ignore my TBA key
+tba/key.txt
+
+# Cache of past matches
+cache/
+
+# Editor stuff
+.idea
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
