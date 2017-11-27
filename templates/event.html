@@ -53,5 +53,30 @@
 {% endif %}
 <div class="card" id="upcoming-card">
     <div class="card-heading" id="upcoming-title"><b>Upcoming Matches</b></div>
+    <br>
+    <table id="upcoming-table">
+        <tr>
+            <th>Match</th>
+            <th class="blue">Blue Alliance</th>
+            <th class="blue">Blue Win (%)</th>
+            <th class="red">Red Alliance</th>
+            <th class="red">Red Win (%)</th>
+        </tr>
+        {% for match in event.upcoming_matches %}
+        <tr>
+            <td>{{match.name}}</td>
+            <td class="blue">
+                {% for member in match.blue_alliance %}{{member}} {% endfor %}
+            </td>
+            <!-- TODO: Dynamically colour these cells based on the likelihood of the event-->
+            <td>{{match.blue_win_prob}}</td>
+            <td class="red">
+                {% for member in match.red_alliance %}{{member}} {% endfor %}
+            </td>
+            <!-- TODO: Dynamically colour these cells based on the likelihood of the event-->
+            <td>{{match.red_win_prob}}</td>
+        </tr>
+        {% endfor %}
+    </table>
 </div>
 {% endblock %}
