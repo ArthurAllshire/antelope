@@ -1,5 +1,5 @@
 from predict.elo import Elo
-from predict.sim import EventSimutator
+from predict.event_predict import EventSimutator
 
 
 class FRC:
