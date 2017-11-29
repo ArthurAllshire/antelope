@@ -91,9 +91,17 @@ yourselector {
     padding:10px;
     margin-top: 10px;
     margin-bottom: 15px;
+    position: relative;
+
 }
 
 .card-heading {
     font-size: 20px;
-    line-height: 20px;
+    line-height: 25px;
+    display: inline;
+    margin-bottom: 15px;
+}
+
+.title  {
+    font-size:30px;
 }

@@ -2,29 +2,56 @@
 {% block pagetitle %}{% endblock %}
 {% block body %}
 <link href="../static/index.css" rel="stylesheet">
-<ul class="cards">
+<div class="title"><b>Events in Progress</b></div>
 {% for event in events %}
-    <li>
-    <div class="card">
-        <!-- <div class="card-topline"> -->
-        <div class="event-name"><a class="event-link" href="/event/{{ event.code }}"><b>{{ event.name }}</b></a></div>
-        <div class="event-status">{{ event.status }}</div>
-        <!-- </div> -->
-        <br />
-        <br />
-        <div class="event-stats">
-            <table>
-            {% for stat in event.event_stats %}
-            <tr>
-                <td> {{stat[0]}} </td>
-                <td> {{stat[1]}} </td>
-            </tr>
-            {% endfor %}
+<div class="card">
+    <div class="card-heading"><a class="event-link" href="/event/{{ event.code }}"><b>{{ event.name }}</b></a></div>
+    <div class="event-status">{{ event.status }}</div>
+    <br>
+    <div class="event-stats">
+        {% if event.finals.in_progress %}
+            <table class="preview-table">
+                <tr>
+                    <th>Alliance</th>
+                    <th>Win Final (%)</th>
+                </tr>
+                {% for alliance_ko_data in event.finals.knockout_predictions %}
+                <tr>
+                    <td>
+                        {% for alliance in alliance_ko_data[0] %}{{alliance}} {% endfor %}
+                    </td>
+                    <td> {{alliance_ko_data[-1]}} </td>
+                </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+        <div class="next-matches">
+            <table class="preview-table">
+                <tr>
+                    <th>Upcoming Match</th>
+                    <th>Alliances</th>
+                    <th>Blue Win (%)</th>
+                </tr>
+                {% for match in event.upcoming_matches[:3] %}
+                <tr>
+                    <td style="width: 10%">{{match.name}}</td>
+                    <td style="width: 50%">
+                        <b>{% for team in match.blue_alliance %}
+                        <div class="upcoming-blue">{{team}} </div>
+                        {% endfor %} <br />
+                        {% for team in match.red_alliance %}
+                        <div class="upcoming-red">{{team}} </div>
+                        {% endfor %}<b>
+                    </td>
+                    <td>{{match.blue_win_prob}}</td>
+                </tr>
+                {% endfor %}
             </table>
         </div>
-        <div class="dates"> {{event.start_month}} {{event.start_day}} to
-            {{event.end_month}} {{event.end_day}}</div>
+        {% endif %}
     </div>
-    </li>
+    <div class="dates"> {{event.start_month}} {{event.start_day}} to
+        {{event.end_month}} {{event.end_day}}</div>
+</div>
 {% endfor %}
 {% endblock %}

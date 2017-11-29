@@ -1,13 +1,10 @@
 .cardtop {
     /* height: 25px; */
-    display:block;
+    /*display:block;*/
 }
 
-.event-name {
-    font-size: 20px;
-    line-height: 20px;
-    display: block;
-    float: left;
+.card {
+    width: 600px;
 }
 
 .event-link {
@@ -17,18 +14,38 @@
 .event-status {
     font-size: 20px;
     line-height: 20px;
-    display: block;
     float: right;
+    display: block;
 }
 
 .dates {
     float: right;
-    display: block;
-    transform:translateY(-8px);
+    position:absolute;
+    bottom:10px;
+    right: 10px;
 }
 
-.event-stats {
-    float:left;
-    display: block;
-    transform:translateY(-10px);
+.preview-table {
+    border-collapse: collapse;
+    width: 60%;
+    margin-top: 10px;
+}
+
+.preview-table th, td {
+    text-align:center;
+    vertical-align:middle;
+    border: 1px solid #ddd;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.upcoming-blue {
+    color: #6699FF;
+    display: inline;
+}
+
+
+.upcoming-red {
+    color: #FF666B;
+    display: inline;
 }
