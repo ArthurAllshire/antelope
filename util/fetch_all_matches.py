@@ -5,7 +5,7 @@ tba_key = None
 with open('../tba/key.txt', 'r') as keyfile:
     tba_key = keyfile.readline().rstrip('\n')
 
-HEADERS = {'X-TBA-App-Id': 'Arthur Allshire:Antilope',
+HEADERS = {'X-TBA-App-Id': 'Arthur Allshire:Antelope',
            'X-TBA-Auth-Key': tba_key}
 
 tba_wrapper = BlueAllianceWrapper(HEADERS)

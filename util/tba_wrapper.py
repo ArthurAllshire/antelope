@@ -10,7 +10,7 @@ class BlueAllianceWrapper():
     def __init__(self, tba_auth_key):
 
         self.tba_key = tba_auth_key
-        self.headers = {'X-TBA-App-Id': 'Arthur Allshire:Antilope',
+        self.headers = {'X-TBA-App-Id': 'Arthur Allshire:Antelope',
            'X-TBA-Auth-Key': self.tba_key}
 
     def get_year_events(self, year):
