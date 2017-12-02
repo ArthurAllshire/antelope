@@ -5,10 +5,7 @@ tba_key = None
 with open('../tba/key.txt', 'r') as keyfile:
     tba_key = keyfile.readline().rstrip('\n')
 
-HEADERS = {'X-TBA-App-Id': 'Arthur Allshire:Antelope',
-           'X-TBA-Auth-Key': tba_key}
-
-tba_wrapper = BlueAllianceWrapper(HEADERS)
+tba_wrapper = BlueAllianceWrapper(tba_key)
 
 for year in range(2008, 2018):
     print(year)
