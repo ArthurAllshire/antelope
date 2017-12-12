@@ -5,19 +5,16 @@ import pickle
 import statistics
 import math
 
-default_stdev = 20
+default_stdev = 50
 
-qm_elo = FRCElo(20, 1350, default_stdev)
-fm_elo = FRCElo(20, 1350, default_stdev)
-
-# used to calculate standard deviation
-SCORE_QUEUE_FINAL_LEN = 800
+elo = FRCElo(qm_K=20, fm_K=5, new_team_rating=1350, init_stdev=default_stdev)
 
 briers = []
 year_briers = []
 
 predictions_outcomes = []
 
+i = 0
 
 for year in range(2008, 2018):
     with open("../cache/" + str(year) + "matches.p", "rb") as year_file:
@@ -25,56 +22,67 @@ for year in range(2008, 2018):
         processed_teams = []
         for event in year_events.values():
             for match in event:
-                # print(match)
-                blue = match["alliances"]["blue"]["team_keys"]
-                red = match["alliances"]["red"]["team_keys"]
 
-                if match["comp_level"] == "qm":
-                    forecast = qm_elo.predict(blue, red)
-                else:
-                    forecast = fm_elo.predict(blue, red)
-                # forecast = (qm_elo.predict(blue, red)
-                #         if match["comp_level"] == "qm"
-                #         else fm_elo.predict(blue, red))
-
-                blue_score = match["alliances"]["blue"]["score"]
-                red_score = match["alliances"]["red"]["score"]
-
-                margin = blue_score - red_score
+                forecast = elo.predict(match)
+                processed_match = FRCElo.get_match_data(match)
+                margin = processed_match.blue_score - processed_match.red_score
                 outcome = 0.5 if margin == 0 else (1 if margin > 0 else 0)
-                briers.append((forecast - outcome)**2)
 
-                if year == 2017:
+                if year % 2 == 0:
                     predictions_outcomes.append((forecast, outcome))
+                    briers.append((forecast - outcome) ** 2)
 
-                qm_K = 15 if match["comp_level"] == "qm" else 2
-                fm_K = 15 if match["comp_level"] == "qm" else 5
+                elo.update(match)
 
-                qm_elo.update(blue, blue_score, red, red_score, K=qm_K)
-                fm_elo.update(blue, blue_score, red, red_score, K=fm_K)
-
-        print("%s year brier %s" % (year, statistics.mean(briers)))
-        year_briers.append(statistics.mean(briers))
+        if not briers == []:
+            print("%s year brier %s" % (year, statistics.mean(briers)))
+            year_briers.append(statistics.mean(briers))
         briers = []
-        qm_elo.next_year(1450, 0.2, default_stdev)
-        fm_elo.next_year(1450, 0.2, default_stdev)
+        elo.next_year(1500, 0.2, default_stdev)
 
 print(statistics.mean(year_briers))
 
-predict_buckets = [0 for i in range(20)]
-outcome_buckets = [0 for i in range(20)]
+num_buckets = 10
+
+predict_buckets = [0 for i in range(num_buckets)]
+outcome_buckets = [0 for i in range(num_buckets)]
 
 for match in predictions_outcomes:
-    bucket_num = math.floor(match[0] * 20)
-    if not (match[1] == 0.5):
-        predict_buckets[bucket_num] += 1
-        outcome_buckets[bucket_num] += match[1]
+    bucket_num = math.floor(match[0] * num_buckets)
+    predict_buckets[bucket_num] += 1
+    outcome_buckets[bucket_num] += match[1]
 
 calibration_score = 0
 for i, num_predictions, num_outcomes in zip(
-        range(0, 20), predict_buckets, outcome_buckets):
-    bucket_mean = ((i * 5) + 2.5) / 100
-    print("%s - %s" % (bucket_mean, num_outcomes / num_predictions))
+        range(0, num_buckets), predict_buckets, outcome_buckets):
+    bucket_mean = ((i * 10) + 5) / 100
+    print("%s - %s - %s"
+          % (bucket_mean, num_outcomes / num_predictions, num_predictions))
     calibration_score += abs(bucket_mean - (num_outcomes / num_predictions))
 
 print(calibration_score)
+
+blue_wins = 0
+red_wins = 0
+for match in predictions_outcomes:
+    if match[1] == 0:
+        red_wins += 1
+    elif match[1] == 1:
+        blue_wins += 1
+
+print("red: %s, blue %s" % (red_wins, blue_wins))
+"""
+
+predict = [0, 0]
+outcome = [0, 0]
+
+for  match in predictions_outcomes:
+    if match[0] < 0.5 and not match[1] == 0.5:
+        predict[0] += 1
+        outcome[0] += match[1]
+    elif match[0] > 0.5 and not match[1] == 0.5:
+        predict[1] += 1
+        outcome[1] += match[1]
+
+print("0.25 %s %s" % (outcome[0]/predict[0], predict[0]))
+print("0.25 %s %s" % (outcome[1]/predict[1], predict[1]))"""
