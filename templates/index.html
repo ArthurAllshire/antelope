@@ -5,7 +5,7 @@
 <div class="title"><b>Events in Progress</b></div>
 {% for event in events %}
 <div class="card">
-    <div class="card-heading"><a class="event-link" href="/event/{{ event.code }}"><b>{{ event.name }}</b></a></div>
+    <div class="card-heading"><a class="event-link" href="/event/{{ event.event_code }}"><b>{{ event.name }}</b></a></div>
     <div class="event-status">{{ event.status }}</div>
     <br>
     <div class="event-stats">
@@ -32,7 +32,8 @@
                     <th>Alliances</th>
                     <th>Blue Win (%)</th>
                 </tr>
-                {% for match in event.upcoming_matches[:3] %}
+                {% for match in event.upcoming_matches %}
+                {% if loop.index < 3 %}
                 <tr>
                     <td style="width: 10%">{{match.name}}</td>
                     <td style="width: 50%">
@@ -45,13 +46,14 @@
                     </td>
                     <td>{{match.blue_win_prob}}</td>
                 </tr>
+                {% endif %}
                 {% endfor %}
             </table>
         </div>
         {% endif %}
     </div>
-    <div class="dates"> {{event.start_month}} {{event.start_day}} to
-        {{event.end_month}} {{event.end_day}}</div>
+    <div class="dates"> {{event.start_date}} to
+        {{event.end_date}}</div>
 </div>
 {% endfor %}
 {% endblock %}

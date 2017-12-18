@@ -11,9 +11,10 @@ class BlueAllianceWrapper():
 
         self.tba_key = tba_auth_key
         self.headers = {'X-TBA-App-Id': 'Arthur Allshire:Antelope',
-           'X-TBA-Auth-Key': self.tba_key}
+                        'X-TBA-Auth-Key': self.tba_key}
 
     def get_year_events(self, year):
+        year = str(year) if type(year) is int else year
         request_url = self.TBA_API + "/events/" + year
         events = requests.get(request_url, headers=self.headers)
         try:
@@ -39,6 +40,7 @@ class BlueAllianceWrapper():
         return event.json()
 
     def get_year_matches(self, year):
+        year = str(year) if type(year) is int else year
         events = self.get_year_events(year)
         event_matches = OrderedDict()
         for event in events:
@@ -72,6 +74,10 @@ class BlueAllianceWrapper():
 
     @staticmethod
     def has_match_been_played(match):
-        """ Determine if match (Match model json) has been played """
+        """ Determine if match has been played """
         # TODO: check if this method works
-        return bool(match['score_breakdown'])
+        for alliance in ['blue', 'red']:
+            if (match['alliances'][alliance]['score'] is None) or \
+               (match['alliances'][alliance]['score'] == -1):
+                return False
+        return True

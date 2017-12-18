@@ -10,7 +10,7 @@ body {
     background-color: #e6e6e6;
     height: 10vh;
     min-height: 50px;
-    position:fixed;
+    position:absolute;
     top:0;
     right: 0;
     left: 0;

@@ -3,7 +3,7 @@
 {% block body %}
 <link href="../static/event.css" rel="stylesheet">
 <div class="title">
-    <b>{{event.start_year}} {{event.name}}</b>
+    <b>{{event.start_year}} {{event.name}} - {{event.status}}</b>
 </div>
 {% if event.finals.in_progress %}
 <div class="card" id="knockout-card">
@@ -51,6 +51,7 @@
     </table>
 </div>
 {% endif %}
+{% if event.upcoming_matches %}
 <div class="card" id="upcoming-card">
     <div class="card-heading" id="upcoming-title"><b>Upcoming Matches</b></div>
     <br>
@@ -79,4 +80,39 @@
         {% endfor %}
     </table>
 </div>
+{% endif %}
+{% if event.retrodictions %}
+<div class="card" id="retrodiction-card">
+    <div class="card-heading" id="retrodiction-title"><b>Previous Matches</b></div>
+    <br>
+    <table id="retrodiction-table">
+        <tr>
+            <th>Match</th>
+            <th class="blue">Blue Alliance</th>
+            <th class="blue">Blue Win (%)</th>
+            <th class="red">Red Alliance</th>
+            <th class="red">Red Win (%)</th>
+            <th>Predicted Margin</th>
+            <th>Actual Margin</th>
+        </tr>
+        {% for match in event.retrodictions %}
+        <tr>
+            <td>{{match.name}}</td>
+            <td class="blue">
+                {% for member in match.blue_alliance %}{{member}} {% endfor %}
+            </td>
+            <!-- TODO: Dynamically colour these cells based on the likelihood of the event-->
+            <td>{{match.blue_win_prob}}</td>
+            <td class="red">
+                {% for member in match.red_alliance %}{{member}} {% endfor %}
+            </td>
+            <!-- TODO: Dynamically colour these cells based on the likelihood of the event-->
+            <td>{{match.red_win_prob}}</td>
+            <td>{{match.predicted_margin}}</td>
+            <td>{{match.actual_margin}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endif %}
 {% endblock %}

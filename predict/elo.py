@@ -56,6 +56,15 @@ class FRCElo(object):
     def diff_to_prob(self, diff):
         return norm.cdf(x=diff/550, loc=0, scale=1)
 
+    def predict_margin(self, raw_match):
+        # what was the prior probability of the blue alliance winning the match?
+        blue_win_prior = self.predict(raw_match)
+        # based on our prior probability of blue victory, calculate their
+        # expected margin of victory
+        expected_blue_margin = norm.ppf(blue_win_prior, loc=0, scale=self.stdev)
+        return expected_blue_margin
+
+
     def recalculate_stdev(self, blue_score, red_score):
         self.stdev_i += 1
         self.stdev_scores.append(blue_score)
@@ -74,15 +83,20 @@ class FRCElo(object):
         """
         match = FRCElo.get_match_data(raw_match)
 
-        blue_elo = sum([self.elo[team] for team in match.blue_teams])
-        red_elo = sum([self.elo[team] for team in match.red_teams])
+        try:
+            blue_elo = sum([self.elo[team] for team in match.blue_teams])
+            red_elo = sum([self.elo[team] for team in match.red_teams])
+        except KeyError:
+            for team in match.blue_teams + match.red_teams:
+                if team not in self.elo.keys():
+                    self.init_team(team)
+
+            blue_elo = sum([self.elo[team] for team in match.blue_teams])
+            red_elo = sum([self.elo[team] for team in match.red_teams])
+
         self.recalculate_stdev(match.blue_score, match.red_score)
 
-        # what was the prior probability of the blue alliance winning the match?
-        blue_win_prior = self.predict(raw_match)
-        # based on our prior probability of blue victory, calculate their
-        # expected margin of victory
-        expected_blue_margin = norm.ppf(blue_win_prior, loc=0, scale=self.stdev)
+        expected_blue_margin = self.predict_margin(raw_match)
 
         blue_margin = float(match.blue_score - match.red_score)
         margin_error = (blue_margin - expected_blue_margin)
