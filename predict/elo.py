@@ -33,8 +33,12 @@ class FRCElo(object):
         # helps reduce CPU load
         self.stdev_i = 0
 
-    def predict(self, raw_match):
-        match = FRCElo.get_match_data(raw_match)
+    def predict(self, raw_match=None, teams=None):
+        if not alliance_scores:
+            match = FRCElo.get_match_data(raw_match)
+        else:
+            # option to just pass in teams, not match
+            match = Match(blue_teams=teams['blue'], red_teams=teams['red'])
 
         try:
             blue_elo = sum([self.elo[team] for team in match.blue_teams])

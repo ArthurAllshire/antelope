@@ -4,15 +4,17 @@ from util.event import Event
 import os.path
 import pickle
 from collections import OrderedDict
+import threading
+import time
 
-
-class FRC:
+class FRC(threading.Thread):
 
     """Class to tie the rest of the event-getting and predicting stuff together
     to separate it from the flask stuff. """
-    def __init__(self, current_year):
+    def __init__(self, current_year, thread_name):
         self.current_year = current_year
         self.current_year_str = str(current_year)
+        super().__init__(name=thread_name)
 
     def setup(self):
 
@@ -33,7 +35,6 @@ class FRC:
                 pickle.dump(self.elo, f)
 
         ev_dicts = self.tba_wrapper.get_year_events(self.current_year)
-        #ev_dicts = ev_dicts[:10]
         self.events = OrderedDict()
         for ev_dict in ev_dicts:
             event_code = self.current_year_str+ev_dict['event_code']
@@ -59,3 +60,16 @@ class FRC:
         for event in year_events.values():
             for match in event:
                 self.elo.update(match)
+
+    def run(self):
+        while True:
+            start = time.time()
+            for event in self.events.values():
+                if event.status in [
+                    Event.States.NOT_STARTED, Event.States.MATCHES_POSTED,
+                    Event.States.QUALIFICATION_MATCHES, Event.States.QUALIFICATION_MATCHES]:
+                    event.update_event_status()
+            to_wait = 180-(time.time()-start)
+            if to_wait > 0:
+                print("%s sleeping for %s seconds" % (self.name, to_wait))
+                time.sleep(to_wait)

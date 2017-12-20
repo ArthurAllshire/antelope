@@ -31,6 +31,14 @@ class Event:
             States.FINAL_MATCHES: "Knockout Rounds",
             States.FINISHED: "Event Over" }
 
+    COMP_LEVELS_VERBOSE = {
+        "qm": "Quals",
+        "ef": "Eighths",
+        "qf": "Quarters",
+        "sf": "Semis",
+        "f": "Finals",
+    }
+
     def __init__(self, event_code, elo, tba_wrapper):
         self.event_code = event_code
         self.elo = elo
@@ -82,10 +90,10 @@ class Event:
                                      else 'none'))
 
         self.matches = matches
+        # This ***MUST*** be done in one step, otherwise we risk sending a user
+        # a half completed dictionary.
         self.event_dict = event_dict
         self.last_status_tm = time.time()
-
-        print(self.event_dict)
 
     def parse_event_response(self):
         if self.event_response['timezone']:
@@ -136,7 +144,9 @@ class Event:
 
     def generate_prediction_dict(self, match):
         dict = {}
-        dict['name'] = match['key']
+        dict['name'] = \
+            "%s %s Match %s" % \
+            (self.COMP_LEVELS_VERBOSE[match['comp_level']], match['set_number'], match['match_number'])
         for alliance in ['blue', 'red']:
             dict[alliance+'_alliance'] = [team_num.lstrip('frc') for team_num in
                                           match['alliances'][alliance]['team_keys']]

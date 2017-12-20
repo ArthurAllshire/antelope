@@ -57,17 +57,20 @@ hiho = {'start_year': '2018', 'start_date': 'April 5',
 
 # events['2018ausc'] = ausc
 # events['2018hiho'] = hiho
-frc = FRC(2017)
+frc = FRC(2017, 'backend-thread')
 frc.setup()
+frc.start()
 
 @app.route('/')
 def index():
     events = []
+    past_events = []
     for event in frc.events.values():
         if event.event_dict['upcoming_matches']:
             events.append(event.event_dict)
-    print(events)
-    return render_template('index.html', events=events)
+        else:
+            past_events.append(event.event_dict)
+    return render_template('index.html', events=events, past_events=past_events)
 
 
 @app.route('/event/<string:event_code>')

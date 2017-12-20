@@ -3,6 +3,9 @@
 {% block body %}
 <link href="../static/index.css" rel="stylesheet">
 <div class="title"><b>Events in Progress</b></div>
+{% if not events %}
+<div style="margin-top:7px;margin-bottom: 10px"><b>No events currently in progress.</b></div>
+{% endif %}
 {% for event in events %}
 <div class="card">
     <div class="card-heading"><a class="event-link" href="/event/{{ event.event_code }}"><b>{{ event.name }}</b></a></div>
@@ -56,4 +59,23 @@
         {{event.end_date}}</div>
 </div>
 {% endfor %}
+<div class="title"><b>Previous Events</b></div>
+<div class="card">
+    {% if past_events %}
+    <table id="past-table">
+        <tr>
+            <th style="width: 70%">Name</th>
+            <th>Dates</th>
+        </tr>
+    {% for event in past_events %}
+        <tr>
+            <td><a class="event-link" href="/event/{{ event.event_code }}"><b>{{ event.name }}</b></a></td>
+            <td>{{event.start_date}} to {{event.end_date}}</td>
+        </tr>
+    {% endfor %}
+    </table>
+    {% else %}
+    <div style="margin-top:7px;margin-bottom: 10px"><b>No past events known about.</b></div>
+    {% endif %}
+</div>
 {% endblock %}

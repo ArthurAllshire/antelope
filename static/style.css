@@ -81,7 +81,7 @@ yourselector {
 
 .card {
     max-width: 60vw;
-    width: 600px;
+    width: 800px;
     min-height: 110px;
     display:block;
     background-color: #f2f2f2;
@@ -104,4 +104,12 @@ yourselector {
 
 .title  {
     font-size:30px;
+}
+
+.table th, td {
+    text-align:center;
+    vertical-align:middle;
+    border: 1px solid #ddd;
+    padding-top: 5px;
+    padding-bottom: 5px;
 }

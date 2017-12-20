@@ -4,7 +4,7 @@
 }
 
 .card {
-    width: 600px;
+    width: 800px;
 }
 
 .event-link {
@@ -48,4 +48,9 @@
 .upcoming-red {
     color: #FF666B;
     display: inline;
+}
+
+#past-table {
+    border-collapse: collapse;
+    width: 100%;
 }
