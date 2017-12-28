@@ -50,6 +50,11 @@ class BlueAllianceWrapper():
 
         return event_matches
 
+    def fetch_alliance_data(self, event_code):
+        request_url = self.TBA_API + '/event/' + event_code + '/alliances'
+        alliance_data = requests.get(request_url, headers=self.headers)
+        return alliance_data.json()
+
     @staticmethod
     def sort_by_match_number(matches):
         """ Sort matches (which is a list of JSON dictionares representing a
