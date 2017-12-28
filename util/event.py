@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 from pytz import timezone, utc
 from collections import OrderedDict
-from scipy.stats import norm
 
 import time
 
@@ -29,7 +28,7 @@ class Event:
             States.MATCHES_POSTED: "Schedule posted",
             States.QUALIFICATION_MATCHES: "Qualifications",
             States.FINAL_MATCHES: "Knockout Rounds",
-            States.FINISHED: "Event Over" }
+            States.FINISHED: "Event Over"}
 
     COMP_LEVELS_VERBOSE = {
         "qm": "Quals",
@@ -52,7 +51,6 @@ class Event:
 
         self.update_event_status()
 
-
     def update_event_status(self):
         update_status = (time.time()-self.last_status_tm) >= 180
         if not update_status:
@@ -62,14 +60,12 @@ class Event:
         self.event_response = self.tba_wrapper.get_raw_event(self.event_code)
         self.parse_event_response()
 
-
         event_dict = {}
         event_dict['start_year'] = str(self.event_start.year)
         event_dict['start_date'] = self.event_start.strftime('%d %b')
         event_dict['end_date'] = self.event_end.strftime('%d %b')
         event_dict['name'] = self.event_response['name']
         event_dict['event_code'] = self.event_code
-
 
         matches = self.get_matches()
 
@@ -87,7 +83,7 @@ class Event:
         event_dict['status_code'] = ('qm'
                                      if self.status == Event.States.QUALIFICATION_MATCHES
                                      else ('fm' if self.status == Event.States.FINAL_MATCHES
-                                     else 'none'))
+                                           else 'none'))
 
         self.matches = matches
         # This ***MUST*** be done in one step, otherwise we risk sending a user
@@ -126,7 +122,6 @@ class Event:
 
     def update_processed_matches(self, matches):
         # Assumes matches is sorted by match number!
-        first_unplayed_idx = None
         unplayed_matches = []
         for match_num, match in enumerate(matches):
             if not self.tba_wrapper.has_match_been_played(match):
@@ -146,7 +141,8 @@ class Event:
         dict = {}
         dict['name'] = \
             "%s %s Match %s" % \
-            (self.COMP_LEVELS_VERBOSE[match['comp_level']], match['set_number'], match['match_number'])
+            (self.COMP_LEVELS_VERBOSE[match['comp_level']],
+             match['set_number'], match['match_number'])
         for alliance in ['blue', 'red']:
             dict[alliance+'_alliance'] = [team_num.lstrip('frc') for team_num in
                                           match['alliances'][alliance]['team_keys']]
@@ -159,7 +155,7 @@ class Event:
     def generate_retrodiction_dict(self, match):
         dict = self.generate_prediction_dict(match)
         dict['actual_margin'] = int(match['alliances']['blue']['score']
-                                 - match['alliances']['red']['score'])
+                                    - match['alliances']['red']['score'])
         return dict
 
     def update_retrodictions(self, match):

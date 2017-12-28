@@ -1,6 +1,5 @@
 from flask import Flask, request
 from flask import render_template
-from collections import OrderedDict
 from frc import FRC
 
 app = Flask(__name__)
@@ -60,6 +59,7 @@ hiho = {'start_year': '2018', 'start_date': 'April 5',
 frc = FRC(2017, 'backend-thread')
 frc.setup()
 frc.start()
+
 
 @app.route('/')
 def index():
