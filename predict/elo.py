@@ -34,11 +34,12 @@ class FRCElo(object):
         self.stdev_i = 0
 
     def predict(self, raw_match=None, teams=None):
-        if not alliance_scores:
+        if not teams:
             match = FRCElo.get_match_data(raw_match)
         else:
             # option to just pass in teams, not match
-            match = Match(blue_teams=teams['blue'], red_teams=teams['red'])
+            match = Match(blue_teams=teams['blue'], red_teams=teams['red'],
+                          blue_score=None, red_score=None, comp_level=None)
 
         try:
             blue_elo = sum([self.elo[team] for team in match.blue_teams])
@@ -67,7 +68,6 @@ class FRCElo(object):
         # expected margin of victory
         expected_blue_margin = norm.ppf(blue_win_prior, loc=0, scale=self.stdev)
         return expected_blue_margin
-
 
     def recalculate_stdev(self, blue_score, red_score):
         self.stdev_i += 1
