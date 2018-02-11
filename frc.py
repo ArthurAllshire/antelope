@@ -7,6 +7,7 @@ from collections import OrderedDict
 import threading
 import time
 
+
 class FRC(threading.Thread):
 
     """Class to tie the rest of the event-getting and predicting stuff together
@@ -24,15 +25,14 @@ class FRC(threading.Thread):
 
         self.tba_wrapper = BlueAllianceWrapper(self.tba_key)
 
-        year_start_elo_file = 'cache/'+'elo.p'
-        if os.path.isfile(year_start_elo_file):
-            with open(year_start_elo_file, 'rb') as f:
-                self.elo = pickle.load(f)
-        else:
-            self.elo = FRCElo(qm_K=20, fm_K=5, new_team_rating=1350, init_stdev=50)
-            self.process_previous_years()
-            with open(year_start_elo_file, 'wb') as f:
-                pickle.dump(self.elo, f)
+        # year_start_elo_file = 'cache/'+'elo.p'
+        # if os.path.isfile(year_start_elo_file):
+        #     with open(year_start_elo_file, 'rb') as f:
+        #         self.elo = pickle.load(f)
+        self.elo = FRCElo(qm_K=20, fm_K=5, new_team_rating=1350, init_stdev=50)
+        self.process_previous_years()
+        # with open(year_start_elo_file, 'wb') as f:
+        #     pickle.dump(self.elo, f)
 
         ev_dicts = self.tba_wrapper.get_year_events(self.current_year)
         self.events = OrderedDict()
@@ -42,15 +42,8 @@ class FRC(threading.Thread):
 
     def process_previous_years(self):
         for year in range(2008, self.current_year):
-            matches_file = 'cache/'+str(year)+'-matches.p'
-            if os.path.isfile(matches_file):
-                with open(matches_file, 'rb') as f:
-                    year_events = pickle.load(f)
-            else:
-                print("Fetching %s matches" % (year))
-                year_events = self.tba_wrapper.get_year_matches(str(year))
-                with open(matches_file, 'wb') as f:
-                    pickle.dump(year_events, f)
+            year_events = self.tba_wrapper.get_year_matches(str(year))
+
             # year events is an OrderedDict in chronological order, with event
             # codes as keys
             self.process_year_matches(year_events)
@@ -63,13 +56,11 @@ class FRC(threading.Thread):
 
     def run(self):
         while True:
-            start = time.time()
+            start = time.monotonic()
             for event in self.events.values():
-                if event.status in [
-                    Event.States.NOT_STARTED, Event.States.MATCHES_POSTED,
-                    Event.States.QUALIFICATION_MATCHES, Event.States.QUALIFICATION_MATCHES]:
+                if event.in_progress:
                     event.update_event_status()
-            to_wait = 180-(time.time()-start)
+            to_wait = 180-(time.monotonic()-start)
             if to_wait > 0:
                 print("%s sleeping for %s seconds" % (self.name, to_wait))
                 time.sleep(to_wait)

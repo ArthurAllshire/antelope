@@ -79,6 +79,7 @@ class Event:
             pass
 
         event_dict['status'] = Event.StateStrings[self.status]
+        # TODO: implement finals in progress or not
         event_dict['finals'] = {'in_progress': False}
         event_dict['status_code'] = ('qm'
                                      if self.status == Event.States.QUALIFICATION_MATCHES
@@ -167,6 +168,13 @@ class Event:
         print("Fetching match data for %s" % (self.event_code))
         matches = self.tba_wrapper.get_event_matches(self.event_code)
         return matches
+
+    @property
+    def in_progress(self):
+        return self.status in [Event.States.NOT_STARTED,
+                               Event.States.MATCHES_POSTED,
+                               Event.States.QUALIFICATION_MATCHES,
+                               Event.States.FINAL_MATCHES]
 
     def set_status_code(self, matches):
         # should we update the elo database with new match data, *or* could
