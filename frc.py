@@ -1,8 +1,6 @@
 from predict.elo import FRCElo
 from util.tba_wrapper import BlueAllianceWrapper
 from util.event import Event
-import os.path
-import pickle
 from collections import OrderedDict
 import threading
 import time
@@ -25,14 +23,8 @@ class FRC(threading.Thread):
 
         self.tba_wrapper = BlueAllianceWrapper(self.tba_key)
 
-        # year_start_elo_file = 'cache/'+'elo.p'
-        # if os.path.isfile(year_start_elo_file):
-        #     with open(year_start_elo_file, 'rb') as f:
-        #         self.elo = pickle.load(f)
         self.elo = FRCElo(qm_K=20, fm_K=5, new_team_rating=1350, init_stdev=50)
         self.process_previous_years()
-        # with open(year_start_elo_file, 'wb') as f:
-        #     pickle.dump(self.elo, f)
 
         ev_dicts = self.tba_wrapper.get_year_events(self.current_year)
         self.events = OrderedDict()
@@ -42,15 +34,18 @@ class FRC(threading.Thread):
 
     def process_previous_years(self):
         for year in range(2008, self.current_year):
+            print("Getting year matches %s" % year)
             year_events = self.tba_wrapper.get_year_matches(str(year))
+            print("Got year matches %s" % year)
 
+            print("Running ELO for year %s" % year)
             # year events is an OrderedDict in chronological order, with event
             # codes as keys
             self.process_year_matches(year_events)
             self.elo.next_year(1500, 0.2, 50)
 
     def process_year_matches(self, year_events):
-        for event in year_events.values():
+        for event_code, event in year_events.items():
             for match in event:
                 self.elo.update(match)
 
@@ -58,7 +53,7 @@ class FRC(threading.Thread):
         while True:
             start = time.monotonic()
             for event in self.events.values():
-                if event.in_progress:
+                if event.to_update:
                     event.update_event_status()
             to_wait = 180-(time.monotonic()-start)
             if to_wait > 0:

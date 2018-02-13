@@ -50,11 +50,15 @@ class Event:
         self.upcoming_matches = []
 
         self.update_event_status()
+        if self.status == self.States.FINISHED and not self.tba_wrapper.is_cached(self.event_code):
+            print("Caching %s" % self.event_code)
+            self.tba_wrapper.cache_matches(self.event_code, self.matches)
 
     def update_event_status(self):
         update_status = (time.time()-self.last_status_tm) >= 180
         if not update_status:
             return
+        last_in_progress = self.in_progress
         # TODO: handle exceptions in the following (ie if no response)
         print("Fetching metadata for %s" % (self.event_code))
         self.event_response = self.tba_wrapper.get_raw_event(self.event_code)
@@ -87,6 +91,9 @@ class Event:
                                            else 'none'))
 
         self.matches = matches
+        if (not self.in_progress and last_in_progress):
+            self.tba_wrapper.cache_matches(self.event_code, matches)
+            print("Caching %s" % self.event_code)
         # This ***MUST*** be done in one step, otherwise we risk sending a user
         # a half completed dictionary.
         self.event_dict = event_dict
@@ -171,6 +178,11 @@ class Event:
 
     @property
     def in_progress(self):
+        return self.status in [Event.States.QUALIFICATION_MATCHES,
+                               Event.States.FINAL_MATCHES]
+
+    @property
+    def to_update(self):
         return self.status in [Event.States.NOT_STARTED,
                                Event.States.MATCHES_POSTED,
                                Event.States.QUALIFICATION_MATCHES,

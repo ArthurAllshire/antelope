@@ -1,6 +1,8 @@
 import requests
 from requests.exceptions import HTTPError
 from collections import OrderedDict
+from util.data_store import DataStore
+import os
 
 
 class BlueAllianceWrapper():
@@ -12,6 +14,18 @@ class BlueAllianceWrapper():
         self.tba_key = tba_auth_key
         self.headers = {'X-TBA-App-Id': 'Arthur Allshire:Antelope',
                         'X-TBA-Auth-Key': self.tba_key}
+        new_ds = not os.path.isfile('cache/data_store.txt')
+        if new_ds:
+            print('Creating new data store')
+            years = range(2008, 2019)
+            year_events = {}
+            for year in years:
+                print('Fetching year events for %s' % year)
+                events = self.get_year_events(year)
+                year_events[year] = [event['key'] for event in events]
+            self.data_store = DataStore(new_data_store=True, year_events=year_events)
+        else:
+            self.data_store = DataStore()
 
     def get_year_events(self, year):
         year = str(year) if type(year) is int else year
@@ -28,11 +42,25 @@ class BlueAllianceWrapper():
                 events.json(), key=lambda x: x["start_date"])
         return events_sorted
 
+    def is_cached(self, event_code):
+        ev_year = int(event_code[:4])
+        cached_matches = self.data_store.get_event_matches(ev_year, event_code)
+        return cached_matches is not None
+
     def get_event_matches(self, event_code):
-        request_url = self.TBA_API + '/event/' + event_code + '/matches'
-        matches = requests.get(request_url, headers=self.headers)
-        sorted_matches = self.sort_by_match_number(matches.json())
-        return sorted_matches
+        ev_year = int(event_code[:4])
+        cached_matches = self.data_store.get_event_matches(ev_year, event_code)
+        if cached_matches is None:
+            print("Request made for matches")
+            request_url = self.TBA_API + '/event/' + event_code + '/matches'
+            matches = requests.get(request_url, headers=self.headers)
+            sorted_matches = self.sort_by_match_number(matches.json())
+            return sorted_matches
+        return cached_matches
+
+    def cache_matches(self, event_code, matches):
+        ev_year = int(event_code[:4])
+        self.data_store.add_event_matches(ev_year, event_code, matches)
 
     def get_raw_event(self, event_code):
         request_url = self.TBA_API + '/event/' + event_code
@@ -43,10 +71,14 @@ class BlueAllianceWrapper():
         year = str(year) if type(year) is int else year
         events = self.get_year_events(year)
         event_matches = OrderedDict()
-        for event in events:
-            print(event['event_code'])
-            event_matches[year + event['event_code']] = \
-                self.get_event_matches(year + event['event_code'])
+        trust_cache = os.path.isfile('cache/data_store.txt')
+        if trust_cache:
+            return self.data_store.data[int(year)]
+        else:
+            for event in events:
+                print('Fetching matches for %s' % event['event_code'])
+                event_matches[year + event['event_code']] = \
+                    self.get_event_matches(year + event['event_code'])
 
         return event_matches
 

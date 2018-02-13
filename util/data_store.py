@@ -73,6 +73,7 @@ class DataStore(object):
             logging.warning("Event %s (year %s) is not an event in the data"
                             "store, but matches for it are being added."
                             % (event_code, year))
+        print("Year %s event_code %s" % (year, event_code))
         self.data[year][event_code] = matches
         self.write_cache(year, self.data[year])
 
@@ -101,7 +102,7 @@ class DataStore(object):
 
     def write_cache(self, year: int, value):
         """ Write value to the cache for year. """
-
         cache_file = ''.join([self.cache_directory, '/', str(year),
                               self.CACHE_FILE_EXTENSION])
+        print("Cache file %s" % cache_file)
         pickle.dump(value, open(cache_file, 'wb'))
