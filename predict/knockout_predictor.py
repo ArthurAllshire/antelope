@@ -30,15 +30,13 @@ class KnockoutPredictor:
 
     levels = ['ef', 'qf', 'sf', 'fm', 'won']
 
-    def __init__(self, event, knockout_type, elo, tba_wrapper, is_sim=False):
+    def __init__(self, event, knockout_type, elo, is_sim=False):
         self.event = event
         self.knockout_type = knockout_type
         self.elo = elo
-        self.tba_wrapper = tba_wrapper
         self.is_sim = is_sim
 
-    def simulate_bracket_knockout(self):
-        alliance_data = self.tba_wrapper.fetch_alliance_data(self.event.event_code)
+    def simulate_bracket_knockout(self, alliance_data):
         levels = self.levels[1:-1]
         alliances = self.generate_initial_state(alliance_data, levels)
 
