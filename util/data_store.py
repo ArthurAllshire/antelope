@@ -5,13 +5,17 @@ import logging
 from collections import OrderedDict
 from typing import Dict, List
 
+import os.path
+
 
 class DataStore(object):
 
     CACHE_FILE_EXTENSION = '-event_matches.p'
+    METADATA_FILE_EXTENSION = '-event_metadata.p'
 
     def __init__(self, cache_directory: str='cache',
-                 new_data_store: bool=False, year_events: Dict[int, list]={}):
+                 new_data_store: bool=False, year_events: Dict[int, list]={},
+                 metadata_years: List[int]=[]):
         """Initialise the DataStore class.
         Args:
             cache_directory: Path to directory the data store's cache files
@@ -58,6 +62,24 @@ class DataStore(object):
                 year = get_year(fname)
                 self.data[year] = year_odict
 
+        if metadata_years:
+            self.metadata = OrderedDict()
+            for year in metadata_years:
+                year_file = ''.join([self.cache_directory, '/',
+                                     str(year), self.METADATA_FILE_EXTENSION])
+                if os.path.isfile(year_file):
+                    year_meta_odict = pickle.load(open(year_file, 'rb'))
+                    self.metadata[year] = year_meta_odict
+                else:
+                    self.metadata[year] = OrderedDict()
+        else:
+            self.metadata = None
+        print(self.metadata)
+
+    def add_event_metadata(self, year: int, event_code: str, data: Dict):
+        self.metadata[year][event_code] = data
+        self.write_cache(year, self.metadata[year], self.METADATA_FILE_EXTENSION)
+
     def add_event_matches(self, year: int, event_code: str, matches: List):
         """ Add matches to our data store.
         The matches are added to both this program instance's copy of the
@@ -100,9 +122,17 @@ class DataStore(object):
         # been added to this event.
         return [] if event_match_data is None else event_match_data
 
-    def write_cache(self, year: int, value):
+    def get_event_metadata(self, event_year: int, event_code: str) -> Dict:
+        if event_code in self.metadata[event_year].keys():
+            return self.metadata[event_year][event_code]
+        return None
+
+    def write_cache(self, year: int, value, file_extension=None):
         """ Write value to the cache for year. """
+
+        if file_extension is None:
+            file_extension = self.CACHE_FILE_EXTENSION
         cache_file = ''.join([self.cache_directory, '/', str(year),
-                              self.CACHE_FILE_EXTENSION])
+                              file_extension])
         print("Cache file %s" % cache_file)
         pickle.dump(value, open(cache_file, 'wb'))

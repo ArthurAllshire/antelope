@@ -23,9 +23,10 @@ class BlueAllianceWrapper():
                 print('Fetching year events for %s' % year)
                 events = self.get_year_events(year)
                 year_events[year] = [event['key'] for event in events]
-            self.data_store = DataStore(new_data_store=True, year_events=year_events)
+            self.data_store = DataStore(new_data_store=True, year_events=year_events,
+                                        metadata_years=[2017, 2018])
         else:
-            self.data_store = DataStore()
+            self.data_store = DataStore(metadata_years=[2017, 2018])
 
     def get_year_events(self, year):
         year = str(year) if type(year) is int else year
@@ -45,7 +46,8 @@ class BlueAllianceWrapper():
     def is_cached(self, event_code):
         ev_year = int(event_code[:4])
         cached_matches = self.data_store.get_event_matches(ev_year, event_code)
-        return cached_matches is not None
+        cached_metadata = self.data_store.get_event_metadata(ev_year, event_code)
+        return cached_matches is not None and cached_metadata is not None
 
     def get_event_matches(self, event_code):
         ev_year = int(event_code[:4])
@@ -58,14 +60,20 @@ class BlueAllianceWrapper():
             return sorted_matches
         return cached_matches
 
-    def cache_matches(self, event_code, matches):
+    def cache_matches(self, event_code, matches, event_metadata=None):
         ev_year = int(event_code[:4])
         self.data_store.add_event_matches(ev_year, event_code, matches)
+        if event_metadata is not None:
+            self.data_store.add_event_metadata(ev_year, event_code, event_metadata)
 
     def get_raw_event(self, event_code):
-        request_url = self.TBA_API + '/event/' + event_code
-        event = requests.get(request_url, headers=self.headers)
-        return event.json()
+        ev_year = int(event_code[:4])
+        cached_metadata = self.data_store.get_event_metadata(ev_year, event_code)
+        if cached_metadata is None:
+            request_url = self.TBA_API + '/event/' + event_code
+            event = requests.get(request_url, headers=self.headers)
+            return event.json()
+        return cached_metadata
 
     def get_year_matches(self, year):
         year = str(year) if type(year) is int else year

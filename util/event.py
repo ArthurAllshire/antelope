@@ -52,7 +52,9 @@ class Event:
         self.update_event_status()
         if self.status == self.States.FINISHED and not self.tba_wrapper.is_cached(self.event_code):
             print("Caching %s" % self.event_code)
-            self.tba_wrapper.cache_matches(self.event_code, self.matches)
+            self.tba_wrapper.cache_matches(self.event_code,
+                                           self.matches,
+                                           event_metadata=self.event_response)
 
     def update_event_status(self):
         update_status = (time.time()-self.last_status_tm) >= 180
@@ -92,7 +94,9 @@ class Event:
 
         self.matches = matches
         if (not self.in_progress and last_in_progress):
-            self.tba_wrapper.cache_matches(self.event_code, matches)
+            self.tba_wrapper.cache_matches(self.event_code,
+                                           self.matches,
+                                           event_metadata=self.event_response)
             print("Caching %s" % self.event_code)
         # This ***MUST*** be done in one step, otherwise we risk sending a user
         # a half completed dictionary.
